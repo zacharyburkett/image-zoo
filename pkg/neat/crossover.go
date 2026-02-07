@@ -81,6 +81,7 @@ func crossoverFrom(rng RNG, primary, secondary Genome, equalFitness bool) (Genom
 	}
 
 	sort.Slice(childConns, func(i, j int) bool { return childConns[i].Innovation < childConns[j].Innovation })
+	childConns = enforceAcyclic(childNodes, childConns)
 	return Genome{Nodes: childNodes, Connections: childConns, Fitness: 0}, nil
 }
 

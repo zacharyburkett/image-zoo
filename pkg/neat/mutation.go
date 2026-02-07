@@ -250,9 +250,17 @@ func MutateToggleConnections(rng RNG, g *Genome, toggleProb float64) {
 	if rng == nil {
 		return
 	}
+	nodeMap := nodeGeneMap(g.Nodes)
 	for i := range g.Connections {
 		if randBool(rng, toggleProb) {
-			g.Connections[i].Enabled = !g.Connections[i].Enabled
+			if g.Connections[i].Enabled {
+				g.Connections[i].Enabled = false
+				continue
+			}
+			g.Connections[i].Enabled = true
+			if _, err := topoOrder(nodeMap, g.Connections); err != nil {
+				g.Connections[i].Enabled = false
+			}
 		}
 	}
 }
