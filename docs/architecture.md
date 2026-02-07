@@ -33,6 +33,9 @@ This document captures the intended architecture for the NEAT/CPPN system. It is
 ## Inference Engine
 We use a deterministic topological schedule compiled from the genome. Networks are acyclic only, which keeps evaluation simple and wasm-friendly.
 
+## Fitness (CPPN)
+Fitness uses a multi-metric score (entropy, edge density, fine edges, variance, symmetry, color variance, noise penalty) plus optional novelty search. Presets in the UI adjust weights.
+
 ## Determinism
 - Central RNG: all randomness through an injected RNG.
 - Explicit seeds in tests and sample runs.

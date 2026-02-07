@@ -6,9 +6,11 @@ This file captures tricky or easy-to-miss details for agentic development on thi
 - Go module path: `github.com/zacharyburkett/image-zoo`.
 - Inference representation: deterministic topological schedule (acyclic only).
 - Networks: strictly acyclic (no recurrent connections).
+- CPPN fitness: multi-metric scoring (entropy, edges, fine edges, variance, symmetry, color, noise) + novelty search.
+- WASM gallery: fixed 128x128 tiles with a detail modal per genome.
 
 ## Decisions Pending
-- CPPN fitness heuristics for the Image Zoo app (start with entropy).
+- Further tuning of fitness presets and additional CPPN inputs.
 
 ## Tricky Bits / Invariants
 - Innovation numbers must be consistent across the population; track globally.

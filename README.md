@@ -20,6 +20,7 @@ This repository is intentionally starting small and will grow in phases. The imm
 - Repository scaffolded.
 - Architecture and roadmap docs drafted in docs/.
 - NEAT core, speciation, mutation, crossover, and evolution loop implemented.
+- CPPN helpers (inputs, rendering, metrics) and wasm gallery app implemented.
 
 ## Examples
 - XOR evolution demo: `go run ./cmd/xor`
@@ -27,10 +28,11 @@ This repository is intentionally starting small and will grow in phases. The imm
 ## WASM App (early scaffold)
 - Build: `./scripts/build_wasm.sh`
 - Serve: `python3 -m http.server 8080` then open `web/`
-- Current demo: evolve a CPPN population and render a gallery ordered by entropy (128x128 tiles).
+- Current demo: evolve a CPPN population and render a 128x128 gallery grid with a detail modal and fitness presets/sliders.
 
 ## Next Steps (Pending Decisions)
-- Specify the initial CPPN fitness heuristics for the wasm app (start with entropy).
+- Continue tuning fitness presets and metrics for more interesting outputs.
+- Add higher-level UX (save/share runs, export genomes).
 
 ## Suggested Layout (will evolve)
 - cmd/            Entry points (e.g., tools, local CLI tests)
