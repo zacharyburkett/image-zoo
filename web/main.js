@@ -1,6 +1,5 @@
 const statusEl = document.getElementById("status");
 const seedInput = document.getElementById("seed");
-const sizeInput = document.getElementById("size");
 const populationInput = document.getElementById("population");
 const generationsInput = document.getElementById("generations");
 const modeSelect = document.getElementById("mode");
@@ -118,12 +117,11 @@ renderButton.addEventListener("click", () => {
     return;
   }
   const seed = Number.parseInt(seedInput.value || "0", 10);
-  const size = Number.parseInt(sizeInput.value || "192", 10);
   const population = Number.parseInt(populationInput.value || "16", 10);
   const generations = Number.parseInt(generationsInput.value || "8", 10);
   const colorMode = modeSelect.value === "color" ? 1 : 0;
   setRunning(true);
-  window.renderGallery(seed, size, population, generations, colorMode);
+  window.renderGallery(seed, population, generations, colorMode);
 });
 
 stopButton.addEventListener("click", () => {

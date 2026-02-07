@@ -27,7 +27,7 @@ This repository is intentionally starting small and will grow in phases. The imm
 ## WASM App (early scaffold)
 - Build: `./scripts/build_wasm.sh`
 - Serve: `python3 -m http.server 8080` then open `web/`
-- Current demo: evolve a CPPN population and render a gallery ordered by entropy.
+- Current demo: evolve a CPPN population and render a gallery ordered by entropy (128x128 tiles).
 
 ## Next Steps (Pending Decisions)
 - Specify the initial CPPN fitness heuristics for the wasm app (start with entropy).

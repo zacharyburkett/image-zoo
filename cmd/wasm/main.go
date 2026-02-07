@@ -46,27 +46,22 @@ func registerCallbacks() {
 		if len(args) > 0 {
 			seed = int64(args[0].Int())
 		}
-		tileSize := 192
+		tileSize := 128
+		popSize := 16
 		if len(args) > 1 {
 			if v := args[1].Int(); v > 0 {
-				tileSize = v
-			}
-		}
-		popSize := 16
-		if len(args) > 2 {
-			if v := args[2].Int(); v > 0 {
 				popSize = v
 			}
 		}
 		generations := 8
-		if len(args) > 3 {
-			if v := args[3].Int(); v > 0 {
+		if len(args) > 2 {
+			if v := args[2].Int(); v > 0 {
 				generations = v
 			}
 		}
 		color := false
-		if len(args) > 4 {
-			color = args[4].Int() != 0
+		if len(args) > 3 {
+			color = args[3].Int() != 0
 		}
 
 		setStatus(fmt.Sprintf("generating 0/%d", generations))
