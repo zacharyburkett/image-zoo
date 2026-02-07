@@ -104,13 +104,19 @@ label {
 }
 
 input[type="number"],
-input[type="range"] {
+input[type="range"],
+select {
   width: 100%;
   padding: 10px 12px;
   border-radius: 12px;
   border: 1px solid rgba(27, 26, 22, 0.2);
   font-size: 1rem;
   background: rgba(255, 255, 255, 0.8);
+}
+
+.buttons {
+  display: grid;
+  gap: 12px;
 }
 
 button {
@@ -124,6 +130,11 @@ button {
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   box-shadow: 0 12px 30px rgba(44, 110, 111, 0.3);
+}
+
+button.secondary {
+  background: linear-gradient(135deg, #7a6b5a, #a6947d);
+  box-shadow: 0 12px 26px rgba(27, 26, 22, 0.2);
 }
 
 button:disabled {

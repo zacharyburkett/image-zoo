@@ -13,6 +13,7 @@ import (
 )
 
 var renderFunc js.Func
+var stopFunc js.Func
 var stepFunc js.Func
 var evo evolutionState
 
@@ -28,6 +29,7 @@ type evolutionState struct {
 	total       int
 	tileSize    int
 	popSize     int
+	color       bool
 	runner      neat.Runner
 	spec        cppn.InputSpec
 	fitnessSize int
@@ -35,6 +37,7 @@ type evolutionState struct {
 
 func registerCallbacks() {
 	stepFunc = js.FuncOf(step)
+	stopFunc = js.FuncOf(stopEvolution)
 	renderFunc = js.FuncOf(func(this js.Value, args []js.Value) any {
 		seed := int64(0)
 		if len(args) > 0 {
@@ -58,9 +61,13 @@ func registerCallbacks() {
 				generations = v
 			}
 		}
+		color := false
+		if len(args) > 4 {
+			color = args[4].Int() != 0
+		}
 
 		setStatus(fmt.Sprintf("generating 0/%d", generations))
-		if err := startEvolution(seed, tileSize, popSize, generations); err != nil {
+		if err := startEvolution(seed, tileSize, popSize, generations, color); err != nil {
 			setStatus(fmt.Sprintf("render failed: %v", err))
 			setRunning(false)
 			return nil
@@ -69,9 +76,20 @@ func registerCallbacks() {
 	})
 
 	js.Global().Set("renderGallery", renderFunc)
+	js.Global().Set("stopEvolution", stopFunc)
 }
 
-func startEvolution(seed int64, tileSize, popSize, generations int) error {
+func stopEvolution(this js.Value, args []js.Value) any {
+	if !evo.running {
+		return nil
+	}
+	evo.running = false
+	setRunning(false)
+	setStatus(fmt.Sprintf("cancelled %d/%d", evo.current, evo.total))
+	return nil
+}
+
+func startEvolution(seed int64, tileSize, popSize, generations int, color bool) error {
 	if popSize < 1 || generations < 1 {
 		return fmt.Errorf("invalid parameters")
 	}
@@ -86,9 +104,13 @@ func startEvolution(seed int64, tileSize, popSize, generations int) error {
 	}
 
 	spec := cppn.DefaultInputSpec()
+	outputCount := 1
+	if color {
+		outputCount = 3
+	}
 	genomes := make([]neat.Genome, 0, popSize)
 	for i := 0; i < popSize; i++ {
-		g, err := neat.NewMinimalGenome(spec.Count(), 1, neat.ActivationSigmoid, rng, tracker, 1.0)
+		g, err := neat.NewMinimalGenome(spec.Count(), outputCount, neat.ActivationSigmoid, rng, tracker, 1.0)
 		if err != nil {
 			return err
 		}
@@ -148,6 +170,7 @@ func startEvolution(seed int64, tileSize, popSize, generations int) error {
 		total:       generations,
 		tileSize:    tileSize,
 		popSize:     popSize,
+		color:       color,
 		runner:      runner,
 		spec:        spec,
 		fitnessSize: fitnessSize,

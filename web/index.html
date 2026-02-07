@@ -45,7 +45,17 @@
           Generations
           <input id="generations" type="number" min="1" max="32" value="8" />
         </label>
-        <button id="render" type="button" disabled>Generate</button>
+        <label>
+          Mode
+          <select id="mode">
+            <option value="grayscale" selected>Grayscale</option>
+            <option value="color">Color</option>
+          </select>
+        </label>
+        <div class="buttons">
+          <button id="render" type="button" disabled>Generate</button>
+          <button id="stop" type="button" disabled class="secondary">Stop</button>
+        </div>
       </section>
     </main>
 

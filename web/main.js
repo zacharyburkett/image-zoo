@@ -3,7 +3,9 @@ const seedInput = document.getElementById("seed");
 const sizeInput = document.getElementById("size");
 const populationInput = document.getElementById("population");
 const generationsInput = document.getElementById("generations");
+const modeSelect = document.getElementById("mode");
 const renderButton = document.getElementById("render");
+const stopButton = document.getElementById("stop");
 
 const setStatus = (message) => {
   statusEl.textContent = message;
@@ -11,6 +13,7 @@ const setStatus = (message) => {
 
 const setRunning = (running) => {
   renderButton.disabled = running || !wasmReady;
+  stopButton.disabled = !running;
   renderButton.textContent = running ? "Generating…" : "Generate";
 };
 
@@ -45,8 +48,15 @@ renderButton.addEventListener("click", () => {
   const size = Number.parseInt(sizeInput.value || "192", 10);
   const population = Number.parseInt(populationInput.value || "16", 10);
   const generations = Number.parseInt(generationsInput.value || "8", 10);
+  const colorMode = modeSelect.value === "color" ? 1 : 0;
   setRunning(true);
-  window.renderGallery(seed, size, population, generations);
+  window.renderGallery(seed, size, population, generations, colorMode);
+});
+
+stopButton.addEventListener("click", () => {
+  if (typeof window.stopEvolution === "function") {
+    window.stopEvolution();
+  }
 });
 
 sizeInput.addEventListener("input", () => {

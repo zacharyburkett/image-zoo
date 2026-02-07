@@ -21,3 +21,4 @@ Then visit `http://localhost:8080/web/` in a browser.
 - The wasm runtime shim is `web/wasm_exec.js`.
 - The UI lets you control seed, tile size, population size, and generations.
 - The gallery updates each generation with a progress indicator.
+- You can stop a run early and toggle grayscale/color output.
