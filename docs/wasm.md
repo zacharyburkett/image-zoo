@@ -1,6 +1,6 @@
 # WASM App
 
-This directory contains a minimal wasm front-end that renders a single CPPN sample.
+This directory contains a minimal wasm front-end that evolves a CPPN population and renders a gallery.
 
 ## Build
 ```
@@ -19,3 +19,4 @@ Then visit `http://localhost:8080/web/` in a browser.
 ## Notes
 - The wasm bundle is `web/image_zoo.wasm`.
 - The wasm runtime shim is `web/wasm_exec.js`.
+- The UI lets you control seed, tile size, population size, and generations.

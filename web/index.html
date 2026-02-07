@@ -34,8 +34,16 @@
           <input id="seed" type="number" value="42" />
         </label>
         <label>
-          Size
-          <input id="size" type="range" min="64" max="512" step="32" value="256" />
+          Tile Size
+          <input id="size" type="range" min="64" max="320" step="32" value="192" />
+        </label>
+        <label>
+          Population
+          <input id="population" type="number" min="4" max="64" step="4" value="16" />
+        </label>
+        <label>
+          Generations
+          <input id="generations" type="number" min="1" max="32" value="8" />
         </label>
         <button id="render" type="button" disabled>Generate</button>
       </section>
