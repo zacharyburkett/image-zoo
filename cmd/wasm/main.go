@@ -113,8 +113,10 @@ func renderDetail(this js.Value, args []js.Value) any {
 
 	hidden := countKind(g.Nodes, neat.NodeHidden)
 	outputs := countKind(g.Nodes, neat.NodeOutput)
+	metrics := cppn.ComputeMetrics(pixels, size, size)
+	summary := g.String() + formatMetrics(metrics)
 
-	updateDetail(size, size, pixels, g.Fitness, len(g.Nodes), len(g.Connections), hidden, outputs, g.String())
+	updateDetail(size, size, pixels, g.Fitness, len(g.Nodes), len(g.Connections), hidden, outputs, summary)
 	return nil
 }
 
@@ -188,7 +190,9 @@ func startEvolution(seed int64, tileSize, popSize, generations int, color bool) 
 			if err != nil {
 				return 0, err
 			}
-			return cppn.Entropy(pixels), nil
+			metrics := cppn.ComputeMetrics(pixels, fitnessSize, fitnessSize)
+			weights := cppn.DefaultFitnessWeights()
+			return cppn.ScoreFromMetrics(metrics, weights, color), nil
 		},
 	}
 
@@ -288,6 +292,10 @@ func countKind(nodes []neat.NodeGene, kind neat.NodeKind) int {
 		}
 	}
 	return count
+}
+
+func formatMetrics(m cppn.Metrics) string {
+	return fmt.Sprintf("\nMetrics\n  entropy=%.3f\n  variance=%.4f\n  edgeDensity=%.3f\n  symmetryX=%.3f\n  symmetryY=%.3f\n  highFreq=%.3f\n  colorVar=%.4f\n", m.Entropy, m.Variance, m.EdgeDensity, m.SymmetryX, m.SymmetryY, m.HighFreq, m.ColorVar)
 }
 
 func sortByFitness(genomes []neat.Genome) []neat.Genome {
