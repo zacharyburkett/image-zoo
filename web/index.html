@@ -14,50 +14,67 @@
   </head>
   <body>
     <div class="grain"></div>
-    <main class="app">
-      <header class="header">
-        <div>
+    <div class="layout">
+      <aside class="panel">
+        <div class="brand">
           <p class="tag">WASM + NEAT</p>
           <h1>Image Zoo</h1>
           <p class="subtitle">Evolve CPPNs into curious little patterns.</p>
         </div>
+
         <div class="status" id="status">Loading wasm…</div>
-      </header>
 
-      <section class="canvas-card">
-        <canvas id="canvas" width="256" height="256"></canvas>
-      </section>
+        <section class="controls">
+          <label>
+            Seed
+            <input id="seed" type="number" value="42" />
+          </label>
+          <label>
+            Tile Size
+            <select id="size">
+              <option value="128">128 px</option>
+              <option value="160">160 px</option>
+              <option value="192" selected>192 px</option>
+              <option value="224">224 px</option>
+              <option value="256">256 px</option>
+            </select>
+          </label>
+          <label>
+            Population
+            <input id="population" type="number" min="4" max="64" step="4" value="16" />
+          </label>
+          <label>
+            Generations
+            <input id="generations" type="number" min="1" max="32" value="8" />
+          </label>
+          <label>
+            Mode
+            <select id="mode">
+              <option value="grayscale" selected>Grayscale</option>
+              <option value="color">Color</option>
+            </select>
+          </label>
+          <div class="buttons">
+            <button id="render" type="button" disabled>Generate</button>
+            <button id="stop" type="button" disabled class="secondary">Stop</button>
+          </div>
+        </section>
 
-      <section class="controls">
-        <label>
-          Seed
-          <input id="seed" type="number" value="42" />
-        </label>
-        <label>
-          Tile Size
-          <input id="size" type="range" min="64" max="320" step="32" value="192" />
-        </label>
-        <label>
-          Population
-          <input id="population" type="number" min="4" max="64" step="4" value="16" />
-        </label>
-        <label>
-          Generations
-          <input id="generations" type="number" min="1" max="32" value="8" />
-        </label>
-        <label>
-          Mode
-          <select id="mode">
-            <option value="grayscale" selected>Grayscale</option>
-            <option value="color">Color</option>
-          </select>
-        </label>
-        <div class="buttons">
-          <button id="render" type="button" disabled>Generate</button>
-          <button id="stop" type="button" disabled class="secondary">Stop</button>
+        <p class="panel-hint">Gallery updates each generation. Sorted by entropy.</p>
+      </aside>
+
+      <main class="gallery">
+        <div class="gallery-header">
+          <div>
+            <h2>Gallery</h2>
+            <p>Best patterns float to the top of the grid.</p>
+          </div>
         </div>
-      </section>
-    </main>
+        <section class="canvas-card">
+          <canvas id="canvas" width="256" height="256"></canvas>
+        </section>
+      </main>
+    </div>
 
     <script src="wasm_exec.js"></script>
     <script type="module" src="main.js"></script>

@@ -59,9 +59,4 @@ stopButton.addEventListener("click", () => {
   }
 });
 
-sizeInput.addEventListener("input", () => {
-  const size = Number.parseInt(sizeInput.value || "192", 10);
-  document.getElementById("canvas").style.width = `${Math.min(640, size)}px`;
-});
-
 loadWasm();

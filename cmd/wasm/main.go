@@ -237,9 +237,11 @@ func renderPopulation(pop *neat.Population, spec cppn.InputSpec, tileSize, popSi
 	}
 	ordered := sortByFitness(pop.Genomes)
 	cols, rows := gridDimensions(popSize)
-	width := cols * tileSize
-	height := rows * tileSize
+	gap := tileGap(tileSize)
+	width := cols*tileSize + (cols-1)*gap
+	height := rows*tileSize + (rows-1)*gap
 	atlas := make([]byte, width*height*4)
+	fillAtlas(atlas, width, height, 246, 241, 232)
 
 	for i, g := range ordered {
 		plan, err := neat.BuildAcyclicPlan(g, nil, nil)
@@ -250,13 +252,37 @@ func renderPopulation(pop *neat.Population, spec cppn.InputSpec, tileSize, popSi
 		if err != nil {
 			return err
 		}
-		tileX := (i % cols) * tileSize
-		tileY := (i / cols) * tileSize
+		tileX := (i % cols) * (tileSize + gap)
+		tileY := (i / cols) * (tileSize + gap)
 		copyTile(atlas, pixels, width, tileSize, tileX, tileY)
 	}
 
 	drawPixels(width, height, atlas)
 	return nil
+}
+
+func tileGap(tileSize int) int {
+	gap := tileSize / 12
+	if gap < 4 {
+		gap = 4
+	}
+	if gap > 18 {
+		gap = 18
+	}
+	return gap
+}
+
+func fillAtlas(buf []byte, width, height int, r, g, b byte) {
+	for y := 0; y < height; y++ {
+		row := y * width * 4
+		for x := 0; x < width; x++ {
+			idx := row + x*4
+			buf[idx] = r
+			buf[idx+1] = g
+			buf[idx+2] = b
+			buf[idx+3] = 255
+		}
+	}
 }
 
 func copyTile(dst, tile []byte, dstWidth, tileSize, offsetX, offsetY int) {
