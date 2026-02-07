@@ -70,10 +70,44 @@
             <p>Best patterns float to the top of the grid.</p>
           </div>
         </div>
-        <section class="canvas-card">
-          <canvas id="canvas" width="256" height="256"></canvas>
+        <section class="gallery-card">
+          <div id="gallery" class="gallery-grid"></div>
         </section>
       </main>
+    </div>
+
+    <div class="modal" id="modal" aria-hidden="true">
+      <div class="modal-backdrop" id="modal-backdrop"></div>
+      <div class="modal-content" role="dialog" aria-modal="true">
+        <div class="modal-header">
+          <h3>Pattern detail</h3>
+          <button id="modal-close" class="ghost" type="button">Close</button>
+        </div>
+        <canvas id="detail-canvas" width="512" height="512"></canvas>
+        <div class="detail-grid">
+          <div>
+            <span>Fitness</span>
+            <strong id="detail-fitness">—</strong>
+          </div>
+          <div>
+            <span>Nodes</span>
+            <strong id="detail-nodes">—</strong>
+          </div>
+          <div>
+            <span>Connections</span>
+            <strong id="detail-connections">—</strong>
+          </div>
+          <div>
+            <span>Hidden</span>
+            <strong id="detail-hidden">—</strong>
+          </div>
+          <div>
+            <span>Outputs</span>
+            <strong id="detail-outputs">—</strong>
+          </div>
+        </div>
+        <pre id="detail-summary" class="detail-summary"></pre>
+      </div>
     </div>
 
     <script src="wasm_exec.js"></script>

@@ -15,6 +15,7 @@ import (
 var renderFunc js.Func
 var stopFunc js.Func
 var stepFunc js.Func
+var detailFunc js.Func
 var evo evolutionState
 
 func main() {
@@ -30,6 +31,7 @@ type evolutionState struct {
 	tileSize    int
 	popSize     int
 	color       bool
+	ordered     []neat.Genome
 	runner      neat.Runner
 	spec        cppn.InputSpec
 	fitnessSize int
@@ -38,6 +40,7 @@ type evolutionState struct {
 func registerCallbacks() {
 	stepFunc = js.FuncOf(step)
 	stopFunc = js.FuncOf(stopEvolution)
+	detailFunc = js.FuncOf(renderDetail)
 	renderFunc = js.FuncOf(func(this js.Value, args []js.Value) any {
 		seed := int64(0)
 		if len(args) > 0 {
@@ -77,6 +80,7 @@ func registerCallbacks() {
 
 	js.Global().Set("renderGallery", renderFunc)
 	js.Global().Set("stopEvolution", stopFunc)
+	js.Global().Set("renderDetail", detailFunc)
 }
 
 func stopEvolution(this js.Value, args []js.Value) any {
@@ -86,6 +90,36 @@ func stopEvolution(this js.Value, args []js.Value) any {
 	evo.running = false
 	setRunning(false)
 	setStatus(fmt.Sprintf("cancelled %d/%d", evo.current, evo.total))
+	return nil
+}
+
+func renderDetail(this js.Value, args []js.Value) any {
+	if len(args) < 2 {
+		return nil
+	}
+	idx := args[0].Int()
+	size := args[1].Int()
+	if idx < 0 || idx >= len(evo.ordered) {
+		return nil
+	}
+	if size <= 0 {
+		size = evo.tileSize * 2
+	}
+
+	g := evo.ordered[idx]
+	plan, err := neat.BuildAcyclicPlan(g, nil, nil)
+	if err != nil {
+		return nil
+	}
+	pixels, err := cppn.RenderGrayscale(plan, size, size, evo.spec)
+	if err != nil {
+		return nil
+	}
+
+	hidden := countKind(g.Nodes, neat.NodeHidden)
+	outputs := countKind(g.Nodes, neat.NodeOutput)
+
+	updateDetail(size, size, pixels, g.Fitness, len(g.Nodes), len(g.Connections), hidden, outputs, g.String())
 	return nil
 }
 
@@ -171,10 +205,12 @@ func startEvolution(seed int64, tileSize, popSize, generations int, color bool) 
 		tileSize:    tileSize,
 		popSize:     popSize,
 		color:       color,
+		ordered:     nil,
 		runner:      runner,
 		spec:        spec,
 		fitnessSize: fitnessSize,
 	}
+	prepareGallery(popSize, tileSize)
 	setRunning(true)
 	scheduleStep()
 	return nil
@@ -202,7 +238,9 @@ func step(this js.Value, args []js.Value) any {
 		return nil
 	}
 
-	if err := renderPopulation(evo.runner.Population, evo.spec, evo.tileSize, evo.popSize); err != nil {
+	ordered := sortByFitness(evo.runner.Population.Genomes)
+	evo.ordered = ordered
+	if err := renderPopulation(ordered, evo.spec, evo.tileSize, evo.popSize); err != nil {
 		evo.running = false
 		setRunning(false)
 		setStatus(fmt.Sprintf("render failed: %v", err))
@@ -231,19 +269,9 @@ func step(this js.Value, args []js.Value) any {
 	return nil
 }
 
-func renderPopulation(pop *neat.Population, spec cppn.InputSpec, tileSize, popSize int) error {
-	if pop == nil {
-		return fmt.Errorf("population is nil")
-	}
-	ordered := sortByFitness(pop.Genomes)
-	cols, rows := gridDimensions(popSize)
-	gap := tileGap(tileSize)
-	width := cols*tileSize + (cols-1)*gap
-	height := rows*tileSize + (rows-1)*gap
-	atlas := make([]byte, width*height*4)
-	fillAtlas(atlas, width, height, 246, 241, 232)
-
-	for i, g := range ordered {
+func renderPopulation(ordered []neat.Genome, spec cppn.InputSpec, tileSize, popSize int) error {
+	for i := 0; i < popSize && i < len(ordered); i++ {
+		g := ordered[i]
 		plan, err := neat.BuildAcyclicPlan(g, nil, nil)
 		if err != nil {
 			continue
@@ -252,45 +280,19 @@ func renderPopulation(pop *neat.Population, spec cppn.InputSpec, tileSize, popSi
 		if err != nil {
 			return err
 		}
-		tileX := (i % cols) * (tileSize + gap)
-		tileY := (i / cols) * (tileSize + gap)
-		copyTile(atlas, pixels, width, tileSize, tileX, tileY)
+		updateTile(i, tileSize, tileSize, pixels)
 	}
-
-	drawPixels(width, height, atlas)
 	return nil
 }
 
-func tileGap(tileSize int) int {
-	gap := tileSize / 12
-	if gap < 4 {
-		gap = 4
-	}
-	if gap > 18 {
-		gap = 18
-	}
-	return gap
-}
-
-func fillAtlas(buf []byte, width, height int, r, g, b byte) {
-	for y := 0; y < height; y++ {
-		row := y * width * 4
-		for x := 0; x < width; x++ {
-			idx := row + x*4
-			buf[idx] = r
-			buf[idx+1] = g
-			buf[idx+2] = b
-			buf[idx+3] = 255
+func countKind(nodes []neat.NodeGene, kind neat.NodeKind) int {
+	count := 0
+	for _, n := range nodes {
+		if n.Kind == kind {
+			count++
 		}
 	}
-}
-
-func copyTile(dst, tile []byte, dstWidth, tileSize, offsetX, offsetY int) {
-	for y := 0; y < tileSize; y++ {
-		dstStart := ((offsetY+y)*dstWidth + offsetX) * 4
-		srcStart := y * tileSize * 4
-		copy(dst[dstStart:dstStart+tileSize*4], tile[srcStart:srcStart+tileSize*4])
-	}
+	return count
 }
 
 func sortByFitness(genomes []neat.Genome) []neat.Genome {
@@ -305,6 +307,22 @@ func sortByFitness(genomes []neat.Genome) []neat.Genome {
 	return sorted
 }
 
+func updateTile(index, width, height int, pixels []byte) {
+	jsPixels := js.Global().Get("Uint8ClampedArray").New(len(pixels))
+	js.CopyBytesToJS(jsPixels, pixels)
+	js.Global().Call("updateTile", index, width, height, jsPixels)
+}
+
+func updateDetail(width, height int, pixels []byte, fitness float64, nodes, conns, hidden, outputs int, summary string) {
+	jsPixels := js.Global().Get("Uint8ClampedArray").New(len(pixels))
+	js.CopyBytesToJS(jsPixels, pixels)
+	js.Global().Call("updateDetail", width, height, jsPixels, fitness, nodes, conns, hidden, outputs, summary)
+}
+
+func prepareGallery(popSize, tileSize int) {
+	js.Global().Call("prepareGallery", popSize, tileSize)
+}
+
 func gridDimensions(count int) (cols, rows int) {
 	if count <= 0 {
 		return 0, 0
@@ -312,17 +330,6 @@ func gridDimensions(count int) (cols, rows int) {
 	cols = int(math.Ceil(math.Sqrt(float64(count))))
 	rows = (count + cols - 1) / cols
 	return cols, rows
-}
-
-func drawPixels(width, height int, pixels []byte) {
-	doc := js.Global().Get("document")
-	canvas := doc.Call("getElementById", "canvas")
-	canvas.Set("width", width)
-	canvas.Set("height", height)
-	ctx := canvas.Call("getContext", "2d")
-	imageData := ctx.Call("createImageData", width, height)
-	js.CopyBytesToJS(imageData.Get("data"), pixels)
-	ctx.Call("putImageData", imageData, 0, 0)
 }
 
 func setStatus(msg string) {
