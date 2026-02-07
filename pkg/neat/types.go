@@ -36,4 +36,5 @@ type ConnectionGene struct {
 type Genome struct {
 	Nodes       []NodeGene
 	Connections []ConnectionGene
+	Fitness     float64
 }

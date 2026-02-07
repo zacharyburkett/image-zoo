@@ -17,6 +17,7 @@ This file captures tricky or easy-to-miss details for agentic development on thi
 - CPPNs should be acyclic; enforce DAG creation (no recurrent edges).
 - Mutation ops must avoid creating duplicate connections.
 - Deterministic RNG: all randomness must route through an injected RNG.
+- Add-connection mutation must preserve acyclic order (use topo order).
 
 ## Testing Expectations
 - Unit tests for each mutation operator and distance metric.
