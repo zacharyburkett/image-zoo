@@ -24,6 +24,10 @@ This repository is intentionally starting small and will grow in phases. The imm
 ## Examples
 - XOR evolution demo: `go run ./cmd/xor`
 
+## WASM App (early scaffold)
+- Build: `./scripts/build_wasm.sh`
+- Serve: `python3 -m http.server 8080` then open `web/`
+
 ## Next Steps (Pending Decisions)
 - Specify the initial CPPN fitness heuristics for the wasm app (start with entropy).
 

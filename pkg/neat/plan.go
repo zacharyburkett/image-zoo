@@ -29,6 +29,13 @@ type Plan struct {
 	outIndex   []int
 }
 
+// Executor reuses buffers for repeated evaluation.
+type Executor struct {
+	plan   *Plan
+	values []float64
+	output []float64
+}
+
 // BuildAcyclicPlan compiles a genome into a deterministic, acyclic execution plan.
 // If inputs or outputs are nil/empty, they are inferred from node kinds.
 func BuildAcyclicPlan(g Genome, inputs []NodeID, outputs []NodeID) (*Plan, error) {
@@ -173,6 +180,39 @@ func (p *Plan) Eval(inputs []float64) ([]float64, error) {
 		out[i] = values[idx]
 	}
 	return out, nil
+}
+
+// NewExecutor creates a reusable evaluator for this plan.
+func (p *Plan) NewExecutor() *Executor {
+	return &Executor{
+		plan:   p,
+		values: make([]float64, len(p.valueIndex)),
+		output: make([]float64, len(p.outIndex)),
+	}
+}
+
+// Eval executes the plan with the provided inputs and returns output values.
+// The returned slice is reused between calls; copy it if you need to retain it.
+func (e *Executor) Eval(inputs []float64) ([]float64, error) {
+	if e == nil || e.plan == nil {
+		return nil, fmt.Errorf("executor is nil")
+	}
+	if len(inputs) != len(e.plan.Inputs) {
+		return nil, fmt.Errorf("expected %d inputs, got %d", len(e.plan.Inputs), len(inputs))
+	}
+
+	copy(e.values, inputs)
+	for _, n := range e.plan.nodes {
+		sum := n.Bias
+		for _, c := range n.Incoming {
+			sum += e.values[c.Src] * c.Weight
+		}
+		e.values[n.ValueIndex] = n.Activation.Apply(sum)
+	}
+	for i, idx := range e.plan.outIndex {
+		e.output[i] = e.values[idx]
+	}
+	return e.output, nil
 }
 
 func nodesByKind(nodes map[NodeID]NodeGene, kind NodeKind) []NodeID {

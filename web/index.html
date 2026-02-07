@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Image Zoo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;700&family=Space+Grotesk:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="grain"></div>
+    <main class="app">
+      <header class="header">
+        <div>
+          <p class="tag">WASM + NEAT</p>
+          <h1>Image Zoo</h1>
+          <p class="subtitle">Evolve CPPNs into curious little patterns.</p>
+        </div>
+        <div class="status" id="status">Loading wasm…</div>
+      </header>
+
+      <section class="canvas-card">
+        <canvas id="canvas" width="256" height="256"></canvas>
+      </section>
+
+      <section class="controls">
+        <label>
+          Seed
+          <input id="seed" type="number" value="42" />
+        </label>
+        <label>
+          Size
+          <input id="size" type="range" min="64" max="512" step="32" value="256" />
+        </label>
+        <button id="render" type="button" disabled>Generate</button>
+      </section>
+    </main>
+
+    <script src="wasm_exec.js"></script>
+    <script type="module" src="main.js"></script>
+  </body>
+</html>
