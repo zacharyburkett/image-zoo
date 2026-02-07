@@ -27,15 +27,15 @@
         <section class="controls">
           <label>
             Seed
-            <input id="seed" type="number" value="42" />
+            <input id="seed" type="number" value="12345" />
           </label>
           <label>
             Population
-            <input id="population" type="number" min="4" max="64" step="4" value="16" />
+            <input id="population" type="number" min="4" max="64" step="4" value="64" />
           </label>
           <label>
             Generations
-            <input id="generations" type="number" min="1" max="32" value="8" />
+            <input id="generations" type="number" min="1" max="200" value="100" />
           </label>
           <label>
             Mode
@@ -50,7 +50,61 @@
           </div>
         </section>
 
-        <p class="panel-hint">Gallery updates each generation. Sorted by entropy.</p>
+        <section class="fitness">
+          <div class="fitness-header">
+            <h3>Fitness</h3>
+            <select id="preset">
+              <option value="balanced" selected>Balanced</option>
+              <option value="organic">Organic</option>
+              <option value="geometric">Geometric</option>
+              <option value="symmetric">Symmetric</option>
+              <option value="psychedelic">Psychedelic</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+          <label class="slider">
+            Entropy
+            <input id="w-entropy" type="range" min="0" max="1" step="0.01" value="0.20" />
+            <span id="w-entropy-value" class="slider-value">0.20</span>
+          </label>
+          <label class="slider">
+            Edge density
+            <input id="w-edge" type="range" min="0" max="1" step="0.01" value="0.35" />
+            <span id="w-edge-value" class="slider-value">0.35</span>
+          </label>
+          <label class="slider">
+            Fine edges
+            <input id="w-fine" type="range" min="0" max="1" step="0.01" value="0.15" />
+            <span id="w-fine-value" class="slider-value">0.15</span>
+          </label>
+          <label class="slider">
+            Variance
+            <input id="w-variance" type="range" min="0" max="1" step="0.01" value="0.20" />
+            <span id="w-variance-value" class="slider-value">0.20</span>
+          </label>
+          <label class="slider">
+            Symmetry
+            <input id="w-symmetry" type="range" min="0" max="1" step="0.01" value="0.10" />
+            <span id="w-symmetry-value" class="slider-value">0.10</span>
+          </label>
+          <label class="slider">
+            Color diversity
+            <input id="w-color" type="range" min="0" max="1" step="0.01" value="0.15" />
+            <span id="w-color-value" class="slider-value">0.15</span>
+          </label>
+          <label class="slider">
+            Noise penalty
+            <input id="w-highfreq" type="range" min="0" max="1" step="0.01" value="0.25" />
+            <span id="w-highfreq-value" class="slider-value">0.25</span>
+          </label>
+          <label class="slider">
+            Novelty
+            <input id="w-novelty" type="range" min="0" max="1" step="0.01" value="0.20" />
+            <span id="w-novelty-value" class="slider-value">0.20</span>
+          </label>
+        </section>
+
+        <p class="panel-hint">Gallery updates each generation. Sorted by fitness.</p>
       </aside>
 
       <main class="gallery">

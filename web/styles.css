@@ -35,7 +35,7 @@ body {
   margin: 0 auto;
   padding: 32px;
   display: grid;
-  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+  grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
   gap: 32px;
   align-items: start;
 }
@@ -48,7 +48,7 @@ body {
   position: sticky;
   top: 24px;
   display: grid;
-  gap: 20px;
+  gap: 22px;
 }
 
 .brand {
@@ -105,6 +105,11 @@ select {
   background: rgba(255, 255, 255, 0.95);
 }
 
+input[type="range"] {
+  width: 100%;
+  accent-color: #2c6e6f;
+}
+
 .buttons {
   display: grid;
   gap: 12px;
@@ -148,6 +153,41 @@ button:not(:disabled):hover {
   box-shadow: 0 16px 34px rgba(44, 110, 111, 0.3);
 }
 
+.fitness {
+  display: grid;
+  gap: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(27, 26, 22, 0.08);
+}
+
+.fitness-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.fitness-header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.slider {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 12px;
+  align-items: center;
+}
+
+.slider input {
+  grid-column: 1 / -1;
+}
+
+.slider-value {
+  font-variant-numeric: tabular-nums;
+  color: #5a5145;
+}
+
 .panel-hint {
   font-size: 0.85rem;
   color: #5a5145;
@@ -184,7 +224,7 @@ button:not(:disabled):hover {
 }
 
 .gallery-grid {
-  --tile-size: 192px;
+  --tile-size: 128px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(var(--tile-size), 1fr));
   gap: 18px;

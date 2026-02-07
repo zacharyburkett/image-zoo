@@ -6,6 +6,7 @@ import "math"
 type FitnessWeights struct {
 	Entropy         float64
 	EdgeDensity     float64
+	FineEdges       float64
 	Variance        float64
 	Symmetry        float64
 	ColorVar        float64
@@ -17,6 +18,7 @@ func DefaultFitnessWeights() FitnessWeights {
 	return FitnessWeights{
 		Entropy:         0.2,
 		EdgeDensity:     0.35,
+		FineEdges:       0.15,
 		Variance:        0.2,
 		Symmetry:        0.1,
 		ColorVar:        0.15,
@@ -29,6 +31,7 @@ func ScoreFromMetrics(m Metrics, weights FitnessWeights, color bool) float64 {
 	entropyScore := clamp01(m.Entropy / 8.0)
 	varianceScore := clamp01(m.Variance / 0.25)
 	edgeScore := targetScore(m.EdgeDensity, 0.18, 0.18)
+	fineEdgeScore := targetScore(m.FineEdges, 0.35, 0.25)
 	symScore := clamp01((m.SymmetryX + m.SymmetryY) * 0.5)
 	colorScore := clamp01(m.ColorVar / 0.25)
 
@@ -37,6 +40,7 @@ func ScoreFromMetrics(m Metrics, weights FitnessWeights, color bool) float64 {
 
 	score := weights.Entropy*entropyScore +
 		weights.EdgeDensity*edgeScore +
+		weights.FineEdges*fineEdgeScore +
 		weights.Variance*varianceScore +
 		weights.Symmetry*symScore
 	if color {

@@ -23,6 +23,9 @@ func TestComputeMetricsUniform(t *testing.T) {
 	if m.EdgeDensity != 0 {
 		t.Fatalf("expected edge density 0, got %v", m.EdgeDensity)
 	}
+	if m.FineEdges != 0 {
+		t.Fatalf("expected fine edges 0, got %v", m.FineEdges)
+	}
 	if m.HighFreq != 0 {
 		t.Fatalf("expected high freq 0, got %v", m.HighFreq)
 	}

@@ -8,6 +8,7 @@ type Metrics struct {
 	Variance    float64
 	StdDev      float64
 	EdgeDensity float64
+	FineEdges   float64
 	SymmetryX   float64
 	SymmetryY   float64
 	HighFreq    float64
@@ -67,7 +68,9 @@ func ComputeMetrics(pixels []byte, width, height int) Metrics {
 	}
 
 	edges := 0
+	fineEdges := 0
 	edgeThreshold := 0.08
+	fineEdgeThreshold := 0.03
 	lapSum := 0.0
 	for y := 1; y < height-1; y++ {
 		row := y * width
@@ -79,6 +82,9 @@ func ComputeMetrics(pixels []byte, width, height int) Metrics {
 			if mag > edgeThreshold {
 				edges++
 			}
+			if mag > fineEdgeThreshold {
+				fineEdges++
+			}
 			lap := math.Abs(4*lums[idx] - lums[idx-1] - lums[idx+1] - lums[idx-width] - lums[idx+width])
 			lapSum += lap
 		}
@@ -87,6 +93,7 @@ func ComputeMetrics(pixels []byte, width, height int) Metrics {
 	interior := float64((width - 2) * (height - 2))
 	if interior > 0 {
 		m.EdgeDensity = float64(edges) / interior
+		m.FineEdges = float64(fineEdges) / interior
 		m.HighFreq = lapSum / interior
 	}
 

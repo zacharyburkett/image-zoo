@@ -22,3 +22,4 @@ Then visit `http://localhost:8080/web/` in a browser.
 - The UI lets you control seed, population size, and generations.
 - The gallery updates each generation with a progress indicator.
 - You can stop a run early, toggle grayscale/color output, and click tiles for details.
+- Fitness sliders and presets (Balanced, Organic, Geometric, Symmetric, Psychedelic) tune entropy/edges/fine edges/variance/symmetry/color/noise + novelty search.
