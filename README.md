@@ -19,6 +19,10 @@ This repository is intentionally starting small and will grow in phases. The imm
 ## Status
 - Repository scaffolded.
 - Architecture and roadmap docs drafted in docs/.
+- NEAT core, speciation, mutation, crossover, and evolution loop implemented.
+
+## Examples
+- XOR evolution demo: `go run ./cmd/xor`
 
 ## Next Steps (Pending Decisions)
 - Specify the initial CPPN fitness heuristics for the wasm app (start with entropy).

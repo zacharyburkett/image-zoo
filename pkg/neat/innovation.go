@@ -15,9 +15,10 @@ type InnovationTracker struct {
 }
 
 // NewInnovationTracker initializes a tracker with next ids derived from genomes.
-func NewInnovationTracker(genomes []Genome) *InnovationTracker {
+func NewInnovationTracker(genomes []Genome) (*InnovationTracker, error) {
 	maxInnov := InnovID(0)
 	maxNode := NodeID(0)
+	conns := make(map[connKey]InnovID)
 	for _, g := range genomes {
 		for _, n := range g.Nodes {
 			if n.ID > maxNode {
@@ -25,6 +26,11 @@ func NewInnovationTracker(genomes []Genome) *InnovationTracker {
 			}
 		}
 		for _, c := range g.Connections {
+			key := connKey{in: c.In, out: c.Out}
+			if existing, ok := conns[key]; ok && existing != c.Innovation {
+				return nil, fmt.Errorf("conflicting innovation for connection %d->%d: %d vs %d", c.In, c.Out, existing, c.Innovation)
+			}
+			conns[key] = c.Innovation
 			if c.Innovation > maxInnov {
 				maxInnov = c.Innovation
 			}
@@ -34,8 +40,8 @@ func NewInnovationTracker(genomes []Genome) *InnovationTracker {
 	return &InnovationTracker{
 		nextInnov: maxInnov + 1,
 		nextNode:  maxNode + 1,
-		conns:     make(map[connKey]InnovID),
-	}
+		conns:     conns,
+	}, nil
 }
 
 // NextNodeID returns a new node id.

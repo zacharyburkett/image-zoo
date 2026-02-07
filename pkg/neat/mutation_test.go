@@ -13,7 +13,10 @@ func TestMutateAddNodeSplitsConnection(t *testing.T) {
 			{Innovation: 1, In: 1, Out: 2, Weight: 0.5, Enabled: true},
 		},
 	}
-	tracker := NewInnovationTracker([]Genome{g})
+	tracker, err := NewInnovationTracker([]Genome{g})
+	if err != nil {
+		t.Fatalf("NewInnovationTracker error: %v", err)
+	}
 
 	if err := MutateAddNode(rng, &g, tracker, []ActivationType{ActivationSigmoid}); err != nil {
 		t.Fatalf("MutateAddNode error: %v", err)
@@ -73,7 +76,10 @@ func TestMutateAddConnection(t *testing.T) {
 			{ID: 3, Kind: NodeOutput, Activation: ActivationLinear},
 		},
 	}
-	tracker := NewInnovationTracker([]Genome{g})
+	tracker, err := NewInnovationTracker([]Genome{g})
+	if err != nil {
+		t.Fatalf("NewInnovationTracker error: %v", err)
+	}
 
 	if err := MutateAddConnection(rng, &g, tracker, 1.0, 10); err != nil {
 		t.Fatalf("MutateAddConnection error: %v", err)
@@ -104,7 +110,10 @@ func TestMutateAddConnectionNoCandidates(t *testing.T) {
 			{Innovation: 2, In: 2, Out: 3, Weight: 0.2, Enabled: true},
 		},
 	}
-	tracker := NewInnovationTracker([]Genome{g})
+	tracker, err := NewInnovationTracker([]Genome{g})
+	if err != nil {
+		t.Fatalf("NewInnovationTracker error: %v", err)
+	}
 
 	if err := MutateAddConnection(rng, &g, tracker, 1.0, 5); err == nil {
 		t.Fatalf("expected ErrNoConnectionCandidates")

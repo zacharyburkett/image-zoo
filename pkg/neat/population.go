@@ -41,7 +41,10 @@ func NewPopulation(rng RNG, cfg PopulationConfig, genomes []Genome) (*Population
 	if len(genomes) == 0 {
 		return nil, fmt.Errorf("no genomes provided")
 	}
-	tracker := NewInnovationTracker(genomes)
+	tracker, err := NewInnovationTracker(genomes)
+	if err != nil {
+		return nil, err
+	}
 	return &Population{
 		Config:  cfg,
 		RNG:     rng,
