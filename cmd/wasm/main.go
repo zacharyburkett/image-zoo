@@ -13,13 +13,28 @@ import (
 )
 
 var renderFunc js.Func
+var stepFunc js.Func
+var evo evolutionState
 
 func main() {
 	registerCallbacks()
 	select {}
 }
 
+type evolutionState struct {
+	running     bool
+	seed        int64
+	current     int
+	total       int
+	tileSize    int
+	popSize     int
+	runner      neat.Runner
+	spec        cppn.InputSpec
+	fitnessSize int
+}
+
 func registerCallbacks() {
+	stepFunc = js.FuncOf(step)
 	renderFunc = js.FuncOf(func(this js.Value, args []js.Value) any {
 		seed := int64(0)
 		if len(args) > 0 {
@@ -44,19 +59,26 @@ func registerCallbacks() {
 			}
 		}
 
-		setStatus(fmt.Sprintf("evolving seed=%d pop=%d gen=%d", seed, popSize, generations))
-		if err := renderGallery(seed, tileSize, popSize, generations); err != nil {
+		setStatus(fmt.Sprintf("generating 0/%d", generations))
+		if err := startEvolution(seed, tileSize, popSize, generations); err != nil {
 			setStatus(fmt.Sprintf("render failed: %v", err))
+			setRunning(false)
 			return nil
 		}
-		setStatus(fmt.Sprintf("done seed=%d pop=%d gen=%d", seed, popSize, generations))
 		return nil
 	})
 
 	js.Global().Set("renderGallery", renderFunc)
 }
 
-func renderGallery(seed int64, tileSize, popSize, generations int) error {
+func startEvolution(seed int64, tileSize, popSize, generations int) error {
+	if popSize < 1 || generations < 1 {
+		return fmt.Errorf("invalid parameters")
+	}
+	if evo.running {
+		evo.running = false
+	}
+
 	rng := neat.NewRand(seed)
 	tracker, err := neat.NewInnovationTracker(nil)
 	if err != nil {
@@ -119,17 +141,77 @@ func renderGallery(seed int64, tileSize, popSize, generations int) error {
 		},
 	}
 
-	for gen := 0; gen < generations; gen++ {
-		if _, err := runner.Evaluate(); err != nil {
-			return err
-		}
-		if gen < generations-1 {
-			if err := pop.NextGeneration(mcfg, rcfg); err != nil {
-				return err
-			}
+	evo = evolutionState{
+		running:     true,
+		seed:        seed,
+		current:     0,
+		total:       generations,
+		tileSize:    tileSize,
+		popSize:     popSize,
+		runner:      runner,
+		spec:        spec,
+		fitnessSize: fitnessSize,
+	}
+	setRunning(true)
+	scheduleStep()
+	return nil
+}
+
+func scheduleStep() {
+	js.Global().Call("setTimeout", stepFunc, 0)
+}
+
+func step(this js.Value, args []js.Value) any {
+	if !evo.running {
+		return nil
+	}
+	if evo.current >= evo.total {
+		evo.running = false
+		setRunning(false)
+		setStatus(fmt.Sprintf("done %d/%d", evo.total, evo.total))
+		return nil
+	}
+
+	if _, err := evo.runner.Evaluate(); err != nil {
+		evo.running = false
+		setRunning(false)
+		setStatus(fmt.Sprintf("render failed: %v", err))
+		return nil
+	}
+
+	if err := renderPopulation(evo.runner.Population, evo.spec, evo.tileSize, evo.popSize); err != nil {
+		evo.running = false
+		setRunning(false)
+		setStatus(fmt.Sprintf("render failed: %v", err))
+		return nil
+	}
+
+	setStatus(fmt.Sprintf("generating %d/%d", evo.current+1, evo.total))
+	if evo.current < evo.total-1 {
+		if err := evo.runner.Population.NextGeneration(evo.runner.Mutation, evo.runner.Reproduction); err != nil {
+			evo.running = false
+			setRunning(false)
+			setStatus(fmt.Sprintf("render failed: %v", err))
+			return nil
 		}
 	}
 
+	evo.current++
+	if evo.current < evo.total {
+		scheduleStep()
+		return nil
+	}
+
+	evo.running = false
+	setRunning(false)
+	setStatus(fmt.Sprintf("done %d/%d", evo.total, evo.total))
+	return nil
+}
+
+func renderPopulation(pop *neat.Population, spec cppn.InputSpec, tileSize, popSize int) error {
+	if pop == nil {
+		return fmt.Errorf("population is nil")
+	}
 	ordered := sortByFitness(pop.Genomes)
 	cols, rows := gridDimensions(popSize)
 	width := cols * tileSize
@@ -196,4 +278,8 @@ func drawPixels(width, height int, pixels []byte) {
 
 func setStatus(msg string) {
 	js.Global().Call("setStatus", msg)
+}
+
+func setRunning(running bool) {
+	js.Global().Call("setRunning", running)
 }

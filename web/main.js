@@ -9,7 +9,13 @@ const setStatus = (message) => {
   statusEl.textContent = message;
 };
 
+const setRunning = (running) => {
+  renderButton.disabled = running || !wasmReady;
+  renderButton.textContent = running ? "Generating…" : "Generate";
+};
+
 window.setStatus = setStatus;
+window.setRunning = setRunning;
 
 const go = new Go();
 let wasmReady = false;
@@ -21,7 +27,7 @@ async function loadWasm() {
       go.importObject
     );
     wasmReady = true;
-    renderButton.disabled = false;
+    setRunning(false);
     setStatus("Ready to evolve a gallery.");
     go.run(result.instance);
   } catch (err) {
@@ -39,6 +45,7 @@ renderButton.addEventListener("click", () => {
   const size = Number.parseInt(sizeInput.value || "192", 10);
   const population = Number.parseInt(populationInput.value || "16", 10);
   const generations = Number.parseInt(generationsInput.value || "8", 10);
+  setRunning(true);
   window.renderGallery(seed, size, population, generations);
 });
 

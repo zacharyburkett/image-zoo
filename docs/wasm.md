@@ -20,3 +20,4 @@ Then visit `http://localhost:8080/web/` in a browser.
 - The wasm bundle is `web/image_zoo.wasm`.
 - The wasm runtime shim is `web/wasm_exec.js`.
 - The UI lets you control seed, tile size, population size, and generations.
+- The gallery updates each generation with a progress indicator.
